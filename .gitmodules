@@ -1,0 +1,6 @@
+[submodule "tas-tenant-apis"]
+	path = tas-tenant-apis
+	url = git@github.com:talentappstore/tas-tenant-apis.git
+[submodule "tas-core-apis"]
+	path = tas-core-apis
+	url = git@github.com:talentappstore/tas-core-apis.git
