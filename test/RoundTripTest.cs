@@ -31,7 +31,8 @@ namespace test
             var resolver = new Resolver(schemas);
             foreach (var example in Directory.EnumerateFiles(Path.Combine(baseDir, "examples")))
             {
-                switch (Path.GetFileName(example))
+                var exampleFile = Path.GetFileName(example);
+                switch (exampleFile)
                 {
                     //Items in examples are out of date
                     case "candidateEdit-simple.json":
@@ -54,7 +55,7 @@ namespace test
                         continue;
                 }
 
-                var schema = Path.Combine(schemas, GetSchemaName(example));
+                var schema = Path.Combine(schemas, GetSchemaName(exampleFile));
                 if (schema.EndsWith("Read.json") || schema.EndsWith("Write.json"))
                 {
                     //probably contains items, and thus is affected by
@@ -104,13 +105,23 @@ namespace test
                     Assert.True(false, e.Message);
                 }
                 Assert.True(valueType.IsInstanceOfType(poco));
-                //Assert.True(JToken.DeepEquals(JToken.Parse(File.ReadAllText(example)), JToken.Parse(json)), example + " equals " + json);
+
+                if (exampleFile == "categoryValuesUpload-mockLocations.json")
+                {
+                    //https://github.com/JamesNK/Newtonsoft.Json/issues/1007
+                    return;
+                }
+                Assert.True(JToken.DeepEquals(JToken.Parse(json), JToken.Parse(File.ReadAllText(example))), example + " equals " + json);
             }
         }
 
         private string GetSchemaName(string file)
         {
-            var name = Path.GetFileName(file).Split("-")[0];
+            if (file.StartsWith("routes-consumers-"))
+            {
+                return "routes-consumers.json";
+            }
+            var name = file.Split("-")[0];
             switch (name)
             {
                 case "panelsForApp":
