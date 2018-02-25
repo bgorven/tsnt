@@ -1,0 +1,16 @@
+<h3>Signed-in user email:</h3>
+<p>@ViewData["user"]</p>
+
+<h3>Simple API response:</h3>
+<p>@ViewData["simple"]</p>
+
+<h3>On-behalf-of API response:</h3>
+<p>@ViewData["onBehalf"]</p>
+
+<h3>Non-SOT API responses:</h3>
+<ul>
+    @foreach (var response in (Tuple<Tas.Core.Routes.ConsumingAppInstall, string>[])ViewData["nonSot"]) 
+    {
+        <li>@response.Item1.App: @response.Item2</li>
+    }
+</ul>
