@@ -1,6 +1,4 @@
 schemas/
-pocos/core/
-pocos/tenant/
 
 # Created by https://www.gitignore.io/api/csharp,visualstudio,visualstudiocode
 
