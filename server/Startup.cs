@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -46,8 +47,14 @@ namespace Tas.Server
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseMiddleware<TasMiddleware>();
+            }
 
-            app.UseForwardedHeaders().UseMiddleware<TasMiddleware>().UseMvc();
+            app.UseStaticFiles(new StaticFileOptions { ServeUnknownFileTypes = true })
+               .UseForwardedHeaders(new ForwardedHeadersOptions() { ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto })
+               .UseMvc();
         }
     }
 }

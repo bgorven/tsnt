@@ -30,12 +30,17 @@ namespace Tas.Server.Controllers
             var onBehalf = tasClient.Builder(tenant).WithDev("buddy").WithAuth(Request).RequestAsync<string>("/helloWorld/me");
             var nonSot = tasClient.Builder(tenant).WithDev("buddy").RollupAsync<string>("/helloWorld/forApp");
 
-            await Task.WhenAll(user, simple, onBehalf, nonSot);
-
+            ViewData["tenant"] = tenant;
             ViewData["user"] = (await user).TasPersonalEmail;
             ViewData["simple"] = await simple;
             ViewData["onBehalf"] = await onBehalf;
             ViewData["nonSot"] = await nonSot;
+            return View();
+        }
+
+        [HttpGet("tas/logout")]
+        public ViewResult AfterLogout(string tenant)
+        {
             return View();
         }
     }

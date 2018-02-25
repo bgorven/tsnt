@@ -31,23 +31,26 @@ namespace Tas.Server
 
         public async Task<T> RequestAsync<T>(Func<HttpClient, Task<Stream>> request)
         {
-            using (var stream = await request(httpClient))
-            using (var sr = new StreamReader(stream))
+            return await Task.Run(async () =>
             {
-                object result = default(T);
-                if (typeof(T) == typeof(string))
+                using (var stream = await request(httpClient))
+                using (var sr = new StreamReader(stream))
                 {
-                    result = sr.ReadToEnd();
-                }
-                else
-                {
-                    using (var jr = new JsonTextReader(sr))
+                    object result = default(T);
+                    if (typeof(T) == typeof(string))
                     {
-                        result = Serializer.Deserialize<T>(jr);
+                        result = sr.ReadToEnd();
                     }
+                    else
+                    {
+                        using (var jr = new JsonTextReader(sr))
+                        {
+                            result = Serializer.Deserialize<T>(jr);
+                        }
+                    }
+                    return (T)result;
                 }
-                return (T)result;
-            }
+            });
         }
 
         public Task<T> GetAsync<T>(string uri)
@@ -55,9 +58,14 @@ namespace Tas.Server
             return RequestAsync<T>(client => client.GetStreamAsync(uri));
         }
 
-        internal Task<Routes> GetProducers(string tenant, string app, string dev, string api)
+        internal Task<Tas.Core.Tenant.Tenant> GetTenant(string tenant)
         {
-            return GetAsync<Routes>($"/core/routes/producers/{tenant}/{app}?apiDev={dev}&api={WebUtility.UrlEncode(api)}&sot=false");
+            return GetAsync<Tas.Core.Tenant.Tenant>($"/core/tenants/{tenant}");
+        }
+
+        internal Task<Routes> GetProducers(string tenant, string dev, string api)
+        {
+            return GetAsync<Routes>($"/core/routes/producers/{tenant}/{tasConfig.App}?apiDev={dev}&api={WebUtility.UrlEncode(api)}&sot=false");
         }
 
         public Task<WellKnownSamlAttributes> GetWellKnownSamlAttributes(string tenant, string samlKey)
@@ -169,7 +177,7 @@ namespace Tas.Server
 
         public async Task<Tuple<ConsumingAppInstall, T>[]> RollupAsync<T>(string api)
         {
-            var routes = await client.GetProducers(tenant, client.tasConfig.App, dev, api);
+            var routes = await client.GetProducers(tenant, dev, api);
             return await Task.WhenAll(routes.ProducingAppInstalls.Select(async app =>
                    Tuple.Create(app, await this.WithApp(app.App).RequestAsync<T>(api))
                ).ToArray());

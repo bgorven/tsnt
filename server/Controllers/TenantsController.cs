@@ -12,12 +12,13 @@ namespace Tas.Server.Controllers
         [HttpPost]
         public void InstallTenant([FromBody] Tas.Core.Tenant.Tenant tenant)
         {
-            Console.WriteLine("Installing " + tenant.ShortCode);
+            //A new tenant has installed this app
         }
 
         [HttpDelete("{tenant}")]
         public void UninstallTenant(string tenant)
         {
+            //A tenant has uninstalled this app
         }
 
         [HttpPost("{tenant}/preHalts")]

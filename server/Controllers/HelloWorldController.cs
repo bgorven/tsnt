@@ -23,9 +23,10 @@ namespace Tas.Server.Controllers
         }
 
         [HttpGet]
-        public string HelloWorld(string tenant)
+        public  async Task<string> HelloWorld(string tenant)
         {
-            return $"Hello, {tenant}";
+            var tenantDetails = await tasClient.GetTenant(tenant);
+            return $"Hello, {tenantDetails.Name}";
         }
 
         [HttpGet("me")]
